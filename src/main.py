@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.15.1
+#       jupytext_version: 1.13.7
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -44,7 +44,7 @@ import argparse
 
 # +
 if is_jupyter:
-    volunteer_index = 1
+    volunteer_index = 5
     device_id = 0 # can use -1 if no gpu
     
     args = None
@@ -63,6 +63,7 @@ else:
         warnings.warn("Accept window argument is ignored")
 
     device_id = args.device
+    volunteer_index = args.volunteer_index
 
 root_dir = '/home/sdkuser/workspace/data/volunteer' + str(volunteer_index) + '/'
 if volunteer_index in [1, 2, 3]:
@@ -155,7 +156,6 @@ do_espirit = True
 im_conjphase_asset_zxy = xp.abs(xp.sum(im_naive_cal_vzxycn[0, ..., 0] * xp.conj(sens_asset_zxyc), axis=-1))
 im_conjphase_asset_zxy = im_conjphase_asset_zxy / xp.max(xp.abs(im_conjphase_asset_zxy), axis=(1, 2), keepdims=True)
 
-im_support_zxy = sp.to_device(largest_connected_component_by_slice((im_conjphase_asset_zxy > 0.01).get()), recon_device)
 
 if do_espirit:
     sens_zxyc = xp.zeros((nz, nx, ny, nc), dtype=np.complex64)
@@ -165,20 +165,24 @@ if do_espirit:
         
         c_to_first = sp.linop.Transpose(ksp_for_sens_estimation_xyc.shape, (2, 0, 1))
         ksp_for_sens_estimation_cxy = c_to_first * ksp_for_sens_estimation_xyc
-        sens_cxy = mr.app.EspiritCalib(ksp_for_sens_estimation_cxy, calib_width=24, device=recon_device, kernel_width=6, crop=0.96, show_pbar=False).run()
+        # use higher thresh on espirit to reduce motion ghosts from appearing in coil sens
+        sens_cxy = mr.app.EspiritCalib(ksp_for_sens_estimation_cxy, calib_width=24, device=recon_device, kernel_width=6, thresh=0.04, crop=0.95, show_pbar=False).run()
         
         sens_zxyc[zz, :, :, :] = c_to_first.H * sens_cxy
 else:
 
     sens_zxyc = sens_asset_zxyc 
     
+im_support_zxy = sp.to_device(largest_connected_component_by_slice((sos(sens_zxyc, -1) > 0.01).get()), recon_device)
 sens_zxyc = sens_zxyc * im_support_zxy[..., np.newaxis]
 # -
 
 if is_jupyter:
     #_ = montage(xp.transpose(im_support_zxy, (1, 2, 0)))
     _ = montage(xp.abs(sens_zxyc[sl_to_show, ...]), grid_cols=nc//4)
+    plt.title('Coil Sensitivities')
     _ = montage(xp.transpose(im_conjphase_asset_zxy, (1, 2, 0)))
+    plt.title('Conjugate Phase Coil Combination Using ASSET Coils')
     plt.clim([0, .5])
 
 # +
@@ -245,13 +249,13 @@ if is_jupyter:
     n_grid_cols = max(ns // 4, 1)
     _ = montage(xp.abs(phasenavs_to_show), grid_cols=n_grid_cols)
     plt.clim([0, .5])
-    plt.title('Phase Navigator Magnitudes')
+    plt.title('Phase Navigator Magnitudes Volume ' + str(vol_to_show))
     _ = montage(xp.abs(flip * zxy_to_yxz * im_phasenav_weights_vzsxy[vol_to_show, sl_to_show, ...]), grid_cols=n_grid_cols)
-    plt.title('Phase Navigator Weights')
+    plt.title('Phase Navigator Weights Volume ' + str(vol_to_show))
     _ = montage(xp.abs(flip * zxy_to_yxz * im_phasenav_weights_normalized_vzsxy[vol_to_show, sl_to_show, ...]), grid_cols=n_grid_cols)
-    plt.title('Phase Navigator Weights Normalized')
+    plt.title('Phase Navigator Weights Normalized Volume ' + str(vol_to_show))
     _ = montage(xp.angle(phasenavs_to_show), grid_cols=n_grid_cols)
-    plt.title('Phase Navigator Phases')
+    plt.title('Phase Navigator Phases Volume ' + str(vol_to_show))
 
 
 
@@ -277,7 +281,7 @@ for ww, shot_rejection_model in enumerate(shot_rejection_models):
         ksp_zsxyc = ksp_vzsxyc[vv, ...]
 
         if vv in vol_b0:
-            im_phasenav_weights_normalized_zsxy = xp.ones_like(im_phasenav_weights_normalized_vzsxy[vv, ...])
+            im_phasenav_weights_normalized_zsxy = xp.ones_like(im_phasenav_weights_normalized_vzsxy[vv, ...]) # disable phase nav weighting for b=0
         else:
             im_phasenav_weights_normalized_zsxy = im_phasenav_weights_normalized_vzsxy[vv, ...]
 
@@ -331,7 +335,7 @@ if is_jupyter:
     for shot_rejection_model in shot_rejection_models:
         title_str += str(shot_rejection_model)[len(ShotRejectionModel.__name__) + 1:] + '    '
     plt.title(title_str)
-    plt.ylabel('b500         b0')
+    plt.ylabel('Different Volumes')
 
     # snr_map_catted = tile_vol_dim(snr_maps_wvzxy)
     # _ = montage(xp.abs(snr_map_catted), grid_cols=nw)
