@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/anaconda
 {
-	"name": "fb_diffusion_release",
+	"name": "ng_dwi_release",
 	"build": { 
 		"context": "..",
 		"dockerfile": "../docker/Dockerfile"
@@ -19,7 +19,7 @@
 	
 	"workspaceMount": "source=${localWorkspaceFolder},target=/home/sdkuser/workspace,type=bind",
 	"workspaceFolder": "/home/sdkuser/workspace",
-	"mounts": ["source=/bmrNAS/people/pkllee/scans,target=/home/sdkuser/data,type=bind,readonly"],
+	//"mounts": ["source=/bmrNAS/people/pkllee/scans,target=/home/sdkuser/data,type=bind,readonly"],
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 

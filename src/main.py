@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.7
+#       jupytext_version: 1.16.0
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -301,7 +301,7 @@ for ww, shot_rejection_model in enumerate(shot_rejection_models):
         im_recon_wvzxy[ww, vv, ...] = im_recon_zxy
 
 # +
-sl_to_show = nz - 2
+sl_to_show = nz - 1
 
 def tile_vol_dim(im_wvzxy, normalize=False):
     xp = sp.get_array_module(im_wvzxy)

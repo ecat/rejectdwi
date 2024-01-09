@@ -20,8 +20,8 @@ RUN pip3 install --no-cache-dir -U install setuptools pip
 RUN pip3 install --no-cache-dir cupy-cuda11x
 #RUN pip3 install --no-cache-dir cupy-cuda116
 # use MKL instead of openBLAS since eigh is quite a bit faster on cpu
-RUN pip3 install mkl mkl_fft mkl-service mkl_random mkl_umath tbb4py
-RUN pip3 install -i https://pypi.anaconda.org/intel/simple numpy==1.22.3
+#RUN pip3 install mkl mkl_fft mkl-service mkl_random mkl_umath tbb4py
+RUN pip3 install numpy==1.22.3
 
 RUN pip3 install h5py \
                  ipympl \
