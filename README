@@ -8,7 +8,9 @@ Code and data for paper
 
 3. Run the code and change the loaded data directory if desired
 
-Data is available at https://doi.org/10.5281/zenodo.10981856
+Data is available at https://zenodo.org/records/10981856
+
+https://doi.org/10.5281/zenodo.10981856
 
 ./data/
 
