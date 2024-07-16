@@ -10,7 +10,7 @@ def pseudo_multiple_replica(recon_function, ksp_measured, n_replicas=10, im_mask
         raise NotImplementedError('SNR Maps not properly implemented yet')
 
     ksp_mask = xp.abs(ksp_measured) > 0
-    get_complex_noise = lambda: (xp.random.normal(size=ksp_measured.shape) + 1j * xp.random.normal(size=ksp_measured.shape)) / xp.sqrt(2)
+    get_complex_noise = lambda: (xp.random.normal(size=ksp_measured.shape, dtype=xp.float32) + 1j * xp.random.normal(size=ksp_measured.shape, dtype=xp.float32)) / xp.sqrt(2.0, dtype=xp.complex64)
 
     input_scaling = [0.0, 1] # does the recon with noise only and normal measurements + noise 
 
