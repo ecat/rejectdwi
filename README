@@ -1,4 +1,4 @@
-Code and data for paper
+Code and data for paper Lee PK, Zhou X, Hargreaves BA. “Robust multishot diffusion-weighted imaging of the abdomen with region-based shot rejection,” Magnetic Resonance in Medicine. 2024. doi.org/10.1002/mrm.30102
 
 
 1. Create docker container using provided Dockerfile. Most convenient is to use VSCode with DevContainers extensions
