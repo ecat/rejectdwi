@@ -113,15 +113,16 @@ def reconstruct_dwi_image(ksp_sxyc, sens_xyc, mask_sxy_, phasenav_sxy, phasenav_
         E_tmp = D * F * S * P * Rs
         E = F_dummy * W_half * F_dummy.H * E_tmp                
         EHE = E_tmp.H * F_dummy * W * F_dummy.H * E_tmp
+        EHb = E_tmp.H * F_dummy * W * F_dummy.H * ksp_sxyc
     elif shot_rejection_model == ShotRejectionModel.MS_SENSE_LIKE:
         WP = sp.linop.Multiply(Rs.oshape, phasenav_mag_sxy * phasenav_sxy)
         E = D * F * S * WP * Rs
         EHE = E.H * E
+        EHb = E.H * ksp_sxyc
     else:
         E = D * F * S * P * Rs
-        EHE = E.H * E            
-
-    EHb = E.H * ksp_sxyc
+        EHE = E.H * E 
+        EHb = E.H * ksp_sxyc    
 
     im_xy_output = xp.zeros((nx, ny), dtype=np.complex64)    
     alg = sp.alg.ConjugateGradient(EHE, EHb, im_xy_output, max_iter=niter)
